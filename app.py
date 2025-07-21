@@ -6,6 +6,23 @@ import base64
 import datetime
 import tempfile
 import os
+import nltk
+
+# Ensure necessary NLTK data is available
+try:
+    nltk.data.find("corpora/stopwords")
+except LookupError:
+    nltk.download("stopwords")
+
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
+
+try:
+    nltk.data.find("corpora/wordnet")
+except LookupError:
+    nltk.download("wordnet")
 
 from courses import ds_course, web_course, android_course, ios_course, uiux_course, resume_videos, interview_videos
 
@@ -128,33 +145,29 @@ if pdf_file:
                 </style>
             """, unsafe_allow_html=True)
 
-            if data:
-                def show_info(label, value):
-                    if value:
-                        st.markdown(f"""
-                        <div class="info-card">
-                            <span class="info-label">{label}:</span><br>
-                            <span class="info-value">{value}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
+            def show_info(label, value):
+                if value:
+                    st.markdown(f"""
+                    <div class="info-card">
+                        <span class="info-label">{label}:</span><br>
+                        <span class="info-value">{value}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                show_info("Name", data.get('name', 'N/A'))
-                show_info("Email", data.get('email', 'N/A'))
-                show_info("Mobile", data.get('mobile_number', 'N/A'))
-                show_info("Degree", ', '.join(data.get('degree')) if data.get('degree') else 'N/A')
-                show_info("College", data.get('college_name', 'N/A'))
-                show_info("Experience", data.get('experience', 'N/A'))
-                show_info("Skills", ', '.join(data.get('skills')) if data.get('skills') else 'N/A')
-                show_info("Companies", ', '.join(data.get('company_names')) if data.get('company_names') else 'N/A')
-                show_info("Designation", data.get('designation', 'N/A'))
-                show_info("Total Experience", data.get('total_experience', 'N/A'))
+            show_info("Name", data.get('name', 'N/A'))
+            show_info("Email", data.get('email', 'N/A'))
+            show_info("Mobile", data.get('mobile_number', 'N/A'))
+            show_info("Degree", ', '.join(data.get('degree')) if data.get('degree') else 'N/A')
+            show_info("College", data.get('college_name', 'N/A'))
+            show_info("Experience", data.get('experience', 'N/A'))
+            show_info("Skills", ', '.join(data.get('skills')) if data.get('skills') else 'N/A')
+            show_info("Companies", ', '.join(data.get('company_names')) if data.get('company_names') else 'N/A')
+            show_info("Designation", data.get('designation', 'N/A'))
+            show_info("Total Experience", data.get('total_experience', 'N/A'))
 
-
-            # Score
             resume_score = calculate_resume_score(data)
             st.success(f"✅ Resume Score: {resume_score}/100")
 
-            # DB insert
             insert_data(
                 data.get('name', 'N/A'),
                 data.get('email', 'N/A'),
@@ -208,7 +221,6 @@ if st.sidebar.checkbox("📁 View User Data"):
         df_users = pd.DataFrame(user_records, columns=["ID", "Name", "Email", "Contact", "Score", "Date"])
         st.sidebar.subheader("📊 User Records")
         st.sidebar.dataframe(df_users)
-
         st.sidebar.markdown(get_csv_download_link(df_users, "user_data.csv"), unsafe_allow_html=True)
     else:
         st.sidebar.info("No user data found.")
