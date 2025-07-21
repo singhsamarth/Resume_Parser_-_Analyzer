@@ -2,7 +2,7 @@
 
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)   
 
-<img src="https://github.com/Spidy20/Smart_Resume_Analyser_App/blob/master/yt_thumb.jpg">
+<img src="https://github.com/singhsamarth/Resume_Parser_-_Analyzer/logo.jpg">
 
 
 ## Features
@@ -26,13 +26,5 @@
   ```
   streamlit run app.py
   ``` 
-
-## Screenshots
-
-
-<img src="https://github.com/Spidy20/Smart_Resume_Analyser_App/blob/master/sc1.png">
-
-
-<img src="https://github.com/Spidy20/Smart_Resume_Analyser_App/blob/master/sc2.png">
 
 
