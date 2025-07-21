@@ -10,3 +10,5 @@ nltk==3.5
 spacy==2.3.5
 pyresparser==1.0.6
 pdfminer.six==20201018
+protobuf<=3.20.3
+
