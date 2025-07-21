@@ -8,33 +8,27 @@ import tempfile
 import os
 import nltk
 
-# Ensure necessary NLTK data is available
-try:
-    nltk.data.find("corpora/stopwords")
-except LookupError:
-    nltk.download("stopwords")
+# Set local NLTK data path
+nltk_data_dir = os.path.join(os.getcwd(), "nltk_data")
+os.makedirs(nltk_data_dir, exist_ok=True)
+nltk.data.path.append(nltk_data_dir)
 
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")
+# Download required NLTK corpora if not already present
+for resource in ['stopwords', 'punkt', 'wordnet']:
+    try:
+        nltk.data.find(f'corpora/{resource}' if resource != 'punkt' else f'tokenizers/{resource}')
+    except LookupError:
+        nltk.download(resource, download_dir=nltk_data_dir)
 
-try:
-    nltk.data.find("corpora/wordnet")
-except LookupError:
-    nltk.download("wordnet")
-
+# Import course recommendations (you should have a courses.py file)
 from courses import ds_course, web_course, android_course, ios_course, uiux_course, resume_videos, interview_videos
 
-# Set page config FIRST
+# Set page config
 st.set_page_config(page_title="Resume_Parser_&_Analyser", layout='wide')
 
 # Custom CSS
 st.markdown("""
     <style>
-        body {
-            background-color: #f0f2f6;
-        }
         .main {
             background-color: #ffffff;
             padding: 2rem;
@@ -60,7 +54,6 @@ st.markdown("""
 conn = sqlite3.connect('sra.db', check_same_thread=False)
 cursor = conn.cursor()
 
-# Create table if not exists
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_data (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,7 +66,6 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# Insert Data
 def insert_data(name, email, contact, score, date):
     name = name[:100] if name else ''
     email = email[:100] if email else ''
@@ -82,18 +74,15 @@ def insert_data(name, email, contact, score, date):
                    (name, email, contact, score, date))
     conn.commit()
 
-# Fetch Data
 def fetch_all_users():
     cursor.execute('SELECT * FROM user_data')
     return cursor.fetchall()
 
-# Download link for CSV
 def get_csv_download_link(df, filename):
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
     return f'<a href="data:file/csv;base64,{b64}" download="{filename}">📥 Download CSV</a>'
 
-# Resume Score
 def calculate_resume_score(parsed_data):
     score = 0
     if parsed_data.get('skills'):
@@ -104,10 +93,9 @@ def calculate_resume_score(parsed_data):
         score += len(parsed_data['experience']) * 3
     return min(score, 100)
 
-# App Title
+# Title
 st.title("🚀 Resume Parser & Analyser")
 
-# Upload
 pdf_file = st.file_uploader("📋 Upload Your Resume", type=['pdf', 'docx'])
 
 if pdf_file:
@@ -122,35 +110,12 @@ if pdf_file:
         if data:
             st.subheader("📋 Extracted Resume Info:")
 
-            st.markdown("""
-                <style>
-                .info-card {
-                    background-color: #f9f9f9;
-                    padding: 15px 25px;
-                    margin-bottom: 12px;
-                    border-radius: 10px;
-                    border-left: 5px solid #004080;
-                    font-family: 'Segoe UI', sans-serif;
-                }
-                .info-label {
-                    font-weight: 700;
-                    color: #003366;
-                    font-size: 16px;
-                }
-                .info-value {
-                    font-weight: 500;
-                    color: #222;
-                    font-size: 15px;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-
             def show_info(label, value):
                 if value:
                     st.markdown(f"""
-                    <div class="info-card">
-                        <span class="info-label">{label}:</span><br>
-                        <span class="info-value">{value}</span>
+                    <div style="background:#f9f9f9;padding:15px;margin-bottom:12px;border-radius:10px;
+                                border-left:5px solid #004080;">
+                        <b style="color:#003366;">{label}:</b><br>{value}
                     </div>
                     """, unsafe_allow_html=True)
 
